@@ -15,4 +15,14 @@ class Facility extends Model
     protected $fillable =[
         'name'
     ];
+
+    public function employeeRecords()
+    {
+        return $this->hasMany(EmployeeRecords::class);
+    }
+
+    public function officialRecords()
+    {
+        return $this->hasMany(OfficialRecords::class);
+    }
 }
