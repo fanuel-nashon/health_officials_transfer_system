@@ -15,4 +15,9 @@ class Location extends Model
     protected $fillable = [
         'name', 'district', 'region'
     ];
+
+    public function facilities()
+    {
+        return $this->hasMany(Facility::class);
+    }
 }
