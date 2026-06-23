@@ -1,30 +1,36 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\EmployeeRecords;
 use App\Models\Facility;
 use App\Models\OfficialRecords;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
-class RegisteredUserController extends Controller
+class AdminController extends Controller
 {
-    public function create(): View
+    public function users(): View
     {
-        $facilities = Facility::with('location')->orderBy('name')->get();
+        $users = User::with('roles')->latest()->paginate(20);
 
-        return view('auth.register', compact('facilities'));
+        return view('admin.users.index', compact('users'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function createUser(): View
+    {
+        $roles      = Role::whereNotIn('name', ['admin'])->orderBy('name')->get();
+        $facilities = Facility::with('location')->orderBy('name')->get();
+
+        return view('admin.users.create', compact('roles', 'facilities'));
+    }
+
+    public function storeUser(Request $request): RedirectResponse
     {
         $allowedRoles = ['nurse_doctor', 'facility_admin', 'district_officer', 'region_officer', 'ministry_official'];
 
@@ -40,9 +46,10 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'password'          => Hash::make($validated['password']),
+            'email_verified_at' => now(),
         ]);
 
         $user->assignRole($validated['role']);
@@ -63,9 +70,25 @@ class RegisteredUserController extends Controller
             ]);
         }
 
-        event(new Registered($user));
-        Auth::login($user);
+        return redirect()->route('admin.users')->with('success', "User {$user->name} created successfully.");
+    }
 
-        return redirect(route('dashboard', absolute: false));
+    public function showUser(User $user): View
+    {
+        $user->load(['roles', 'employeeRecord.facility', 'officialRecord.facility', 'transfers']);
+        $roles = Role::all();
+
+        return view('admin.users.show', compact('user', 'roles'));
+    }
+
+    public function assignRole(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'role' => ['required', 'exists:roles,name'],
+        ]);
+
+        $user->syncRoles([$validated['role']]);
+
+        return back()->with('success', 'Role assigned successfully.');
     }
 }
