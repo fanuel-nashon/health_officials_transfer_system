@@ -1,59 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nurses & Doctors Transfer Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web-based transfer management platform for the Government Health Sector of Tanzania. The system digitises the process of submitting, reviewing, and approving transfer requests for nurses and doctors across government health facilities, replacing paper-based workflows with a transparent multi-level approval chain.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Online transfer applications** — nurses and doctors submit requests from any device
+- **4-tier approval workflow** — Facility → District → Region → Ministry
+- **Role-based access control** — each user sees and can do only what their role permits
+- **Real-time status tracking** — applicants follow their request at every stage
+- **Email & in-app notifications** — alerts on submission, progression, and final decisions
+- **Admin user management** — create and manage system users with role assignment
+- **Reports & analytics** — workforce distribution statistics per level
+- **Custom green-themed UI** — fully branded health sector interface (no default Laravel pages)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Layer | Technology |
+|---|---|
+| Framework | Laravel 12 |
+| Database | PostgreSQL |
+| Authentication | Laravel Breeze |
+| Authorization | Spatie Laravel Permission v6 |
+| Frontend | Tailwind CSS (Play CDN), Alpine.js (CDN) |
+| Notifications | Laravel Notifications — `database` + `mail` channels |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Roles & Permissions
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Role | Key Permissions |
+|---|---|
+| `admin` | Manage users, facilities, locations; view all transfers and reports |
+| `nurse_doctor` | Submit transfers, view own transfers |
+| `facility_admin` | Review transfers at facility level, view reports |
+| `district_officer` | Review transfers at district level, view reports |
+| `region_officer` | Review transfers at region level, view reports |
+| `ministry_official` | Final approval/rejection, view all transfers and reports |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Quick Start
 
-## Contributing
+### Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PHP 8.2+
+- PostgreSQL
+- Composer
 
-## Code of Conduct
+### Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone <repo-url>
+cd health_officials_transfer_system
 
-## Security Vulnerabilities
+composer install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+cp .env.example .env
+php artisan key:generate
+```
+
+Configure your database in `.env`:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=health_transfer
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+```
+
+Run migrations and seed:
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+Start the development server:
+
+```bash
+php artisan serve
+```
+
+Visit `http://127.0.0.1:8000`.
+
+> No build step needed — Tailwind and Alpine.js are loaded from CDN.
+
+---
+
+## Default Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| System Administrator | admin@health.go.tz | Admin@1234 |
+| Sample Nurse (×20) | e.g. amina.rashidi@health.go.tz | Nurse@1234 |
+
+To create users for other roles (facility admin, district officer, etc.) log in as admin and go to **Users → New User**, or register directly via `/register`.
+
+---
+
+## Seeded Data
+
+Running `php artisan db:seed` creates:
+
+- **6 roles** with scoped permissions
+- **36 health facilities** across **22 locations** in 13 Tanzanian regions
+- **1 admin account**
+- **20 nurse/doctor accounts** with Swahili names assigned to random facilities
+
+---
+
+## Mail Notifications
+
+To enable email alerts, configure your SMTP settings in `.env`:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your-username
+MAIL_PASSWORD=your-password
+MAIL_FROM_ADDRESS=noreply@health.go.tz
+MAIL_FROM_NAME="Transfer Management System"
+```
+
+Emails are sent on:
+- Transfer submission (to facility admins)
+- Transfer reviewed/forwarded (to the applicant and next-level reviewers)
+- Final approval or rejection (to the applicant)
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is developed for the Government Health Sector of Tanzania as part of an academic/government systems initiative.
