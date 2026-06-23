@@ -12,9 +12,12 @@ class Facility extends Model
 
     protected $table = 'facilities';
 
-    protected $fillable =[
-        'name'
-    ];
+    protected $fillable = ['name', 'location_id'];
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 
     public function employeeRecords()
     {
@@ -24,5 +27,15 @@ class Facility extends Model
     public function officialRecords()
     {
         return $this->hasMany(OfficialRecords::class);
+    }
+
+    public function transfersFrom()
+    {
+        return $this->hasMany(Transfers::class, 'from_facility_id');
+    }
+
+    public function transfersTo()
+    {
+        return $this->hasMany(Transfers::class, 'to_facility_id');
     }
 }

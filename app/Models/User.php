@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,37 +13,48 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'password'];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function employeeRecord()
+    {
+        return $this->hasOne(EmployeeRecords::class);
+    }
+
+    public function officialRecord()
+    {
+        return $this->hasOne(OfficialRecords::class);
+    }
+
+    public function transfers()
+    {
+        return $this->hasMany(Transfers::class);
+    }
+
+    public function getRoleDisplayAttribute(): string
+    {
+        $role = $this->roles->first();
+        if (! $role) {
+            return 'No Role Assigned';
+        }
+
+        return match ($role->name) {
+            'admin'            => 'System Administrator',
+            'nurse_doctor'     => 'Nurse / Doctor',
+            'facility_admin'   => 'Facility Administrator',
+            'district_officer' => 'District Health Officer',
+            'region_officer'   => 'Regional Health Officer',
+            'ministry_official'=> 'Ministry Official',
+            default            => ucwords(str_replace('_', ' ', $role->name)),
+        };
     }
 }
