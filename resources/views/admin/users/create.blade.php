@@ -86,7 +86,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <x-password-input id="password" name="password" autocomplete="new-password" required />
+                        <x-password-input id="password" name="password" autocomplete="new-password" :hint="true" required />
                         @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>

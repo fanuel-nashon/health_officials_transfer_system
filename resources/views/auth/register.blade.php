@@ -74,7 +74,7 @@
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
-            <x-password-input id="password" name="password" autocomplete="new-password" class="mt-1" required />
+            <x-password-input id="password" name="password" autocomplete="new-password" class="mt-1" :hint="true" required />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
